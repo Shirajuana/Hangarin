@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-6">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h4 class="mb-4">{% if object %}Update SubTask{% else %}Add New SubTask{% endif %}</h4>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% include 'includes/form.html' %}
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <a href="{% url 'subtask-list' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

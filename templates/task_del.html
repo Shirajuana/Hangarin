@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-6">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h4 class="mb-4">Delete Task</h4>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <p>Are you sure you want to delete "{{ object }}"?</p>
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                        <a href="{% url 'task-list' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

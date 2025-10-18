@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="bg-secondary rounded h-100 p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h4 class="mb-0">List of Tasks</h4>
+                    <a href="{% url 'task-add' %}" class="btn btn-success"><i class="fa fa-plus me-2"></i>Add Task</a>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <form class="d-flex">
+                            <input class="form-control bg-dark border-0 me-2" type="search" placeholder="Search tasks..." aria-label="Search">
+                            <button class="btn btn-primary" type="submit">Search</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">Title</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Priority</th>
+                                <th scope="col">Category</th>
+                                <th scope="col">Deadline</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in tasks %}
+                            <tr>
+                                <td>{{ task.title }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if task.status == 'Completed' %}bg-success
+                                        {% elif task.status == 'In Progress' %}bg-warning
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ task.status }}
+                                    </span>
+                                </td>
+                                <td>{{ task.priority }}</td>
+                                <td>{{ task.category }}</td>
+                                <td>{{ task.deadline|date:"M d, Y H:i"|default:"No deadline" }}</td>
+                                <td>
+                                    <a href="{% url 'task-update' task.id %}" class="btn btn-primary btn-sm">Edit</a>
+                                    <a href="{% url 'task-delete' task.id %}" class="btn btn-danger btn-sm">Delete</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No tasks found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {% include 'includes/pagination.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
