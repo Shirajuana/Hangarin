@@ -168,21 +168,21 @@ PWA_APP_STATUS_BAR_COLOR = 'default'
 PWA_APP_ICONS = [
     {
         'src': 'static/img/theme/vue.jpg',
-        'sizes': '192x192'
+        'sizes': '200x200'
     },
     {
         'src': 'static/img/theme/vue.jpg',
-        'sizes': '512x512'
+        'sizes': '200x200'
     }
 ]
 PWA_APP_ICONS_APPLE = [
     {
         'src': 'static/img/theme/vue.jpg',
-        'sizes': '192x192'
+        'sizes': '200x200'
     },
     {
         'src': 'static/img/theme/vue.jpg',
-        'sizes': '512x512'
+        'sizes': '200x200'
     }
 ]
 PWA_APP_DIR = 'ltr'
