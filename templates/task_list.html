@@ -11,24 +11,197 @@
                     <a href="{% url 'task-add' %}" class="btn btn-success"><i class="fa fa-plus me-2"></i>Add Task</a>
                 </div>
                 
+                <!-- Search and Filter Section -->
                 <div class="row mb-4">
-                    <div class="col-md-6">
-                        <form class="d-flex">
-                            <input class="form-control bg-dark border-0 me-2" type="search" placeholder="Search tasks..." aria-label="Search">
-                            <button class="btn btn-primary" type="submit">Search</button>
+                    <div class="col-md-3">
+                        <!-- Search Form -->
+                        <form method="get" class="d-flex">
+                            <input class="form-control bg-dark border-0 me-2" 
+                                   type="search" 
+                                   name="q" 
+                                   placeholder="Search tasks..." 
+                                   aria-label="Search"
+                                   value="{{ current_search }}">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+                    </div>
+                    <div class="col-md-2">
+                        <!-- Status Filter -->
+                        <form method="get" id="statusForm">
+                            <select class="form-select bg-dark border-0" name="status" onchange="this.form.submit()">
+                                <option value="">All Statuses</option>
+                                {% for status_value, status_label in status_choices %}
+                                <option value="{{ status_value }}" 
+                                        {% if current_status == status_value %}selected{% endif %}>
+                                    {{ status_label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <!-- Preserve other GET parameters -->
+                            <input type="hidden" name="q" value="{{ current_search }}">
+                            <input type="hidden" name="sort_by" value="{{ current_sort }}">
+                            <input type="hidden" name="priority" value="{{ current_priority }}">
+                            <input type="hidden" name="category" value="{{ current_category }}">
+                        </form>
+                    </div>
+                    <div class="col-md-2">
+                        <!-- Priority Filter -->
+                        <form method="get" id="priorityForm">
+                            <select class="form-select bg-dark border-0" name="priority" onchange="this.form.submit()">
+                                <option value="">All Priorities</option>
+                                {% for priority in priorities %}
+                                <option value="{{ priority.name }}" 
+                                        {% if current_priority == priority.name %}selected{% endif %}>
+                                    {{ priority.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <!-- Preserve other GET parameters -->
+                            <input type="hidden" name="q" value="{{ current_search }}">
+                            <input type="hidden" name="sort_by" value="{{ current_sort }}">
+                            <input type="hidden" name="status" value="{{ current_status }}">
+                            <input type="hidden" name="category" value="{{ current_category }}">
+                        </form>
+                    </div>
+                    <div class="col-md-2">
+                        <!-- Category Filter -->
+                        <form method="get" id="categoryForm">
+                            <select class="form-select bg-dark border-0" name="category" onchange="this.form.submit()">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                <option value="{{ category.name }}" 
+                                        {% if current_category == category.name %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <!-- Preserve other GET parameters -->
+                            <input type="hidden" name="q" value="{{ current_search }}">
+                            <input type="hidden" name="sort_by" value="{{ current_sort }}">
+                            <input type="hidden" name="status" value="{{ current_status }}">
+                            <input type="hidden" name="priority" value="{{ current_priority }}">
+                        </form>
+                    </div>
+                    <div class="col-md-3">
+                        <!-- Sort Options -->
+                        <form method="get" id="sortForm">
+                            <select class="form-select bg-dark border-0" name="sort_by" onchange="this.form.submit()">
+                                <option value="-created_at" {% if current_sort == '-created_at' %}selected{% endif %}>Newest First</option>
+                                <option value="created_at" {% if current_sort == 'created_at' %}selected{% endif %}>Oldest First</option>
+                                <option value="title" {% if current_sort == 'title' %}selected{% endif %}>Title A-Z</option>
+                                <option value="-title" {% if current_sort == '-title' %}selected{% endif %}>Title Z-A</option>
+                                <option value="status" {% if current_sort == 'status' %}selected{% endif %}>Status A-Z</option>
+                                <option value="-status" {% if current_sort == '-status' %}selected{% endif %}>Status Z-A</option>
+                                <option value="priority__name" {% if current_sort == 'priority__name' %}selected{% endif %}>Priority A-Z</option>
+                                <option value="-priority__name" {% if current_sort == '-priority__name' %}selected{% endif %}>Priority Z-A</option>
+                                <option value="category__name" {% if current_sort == 'category__name' %}selected{% endif %}>Category A-Z</option>
+                                <option value="-category__name" {% if current_sort == '-category__name' %}selected{% endif %}>Category Z-A</option>
+                                <option value="deadline" {% if current_sort == 'deadline' %}selected{% endif %}>Deadline (Soonest)</option>
+                                <option value="-deadline" {% if current_sort == '-deadline' %}selected{% endif %}>Deadline (Latest)</option>
+                            </select>
+                            <!-- Preserve other GET parameters -->
+                            <input type="hidden" name="q" value="{{ current_search }}">
+                            <input type="hidden" name="status" value="{{ current_status }}">
+                            <input type="hidden" name="priority" value="{{ current_priority }}">
+                            <input type="hidden" name="category" value="{{ current_category }}">
                         </form>
                     </div>
                 </div>
+
+                <!-- Statistics and Clear Filters -->
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-muted">
+                                    Showing {{ total_filtered_tasks }} task{{ total_filtered_tasks|pluralize }} of {{ total_tasks }}
+                                    {% if current_search or current_status or current_priority or current_category %}(filtered){% endif %}
+                                </span>
+                            </div>
+                            {% if current_search or current_status or current_priority or current_category or current_sort != '-created_at' %}
+                            <div>
+                                <a href="{% url 'task-list' %}" class="btn btn-sm btn-outline-light">
+                                    <i class="fas fa-times me-1"></i>Clear All Filters
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Filters Display -->
+                {% if current_search or current_status or current_priority or current_category %}
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <div class="d-flex flex-wrap gap-2">
+                            {% if current_search %}
+                            <span class="badge bg-primary">Search: "{{ current_search }}"</span>
+                            {% endif %}
+                            {% if current_status %}
+                            <span class="badge bg-info">Status: {{ current_status }}</span>
+                            {% endif %}
+                            {% if current_priority %}
+                            <span class="badge bg-warning">Priority: {{ current_priority }}</span>
+                            {% endif %}
+                            {% if current_category %}
+                            <span class="badge bg-success">Category: {{ current_category }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
 
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th scope="col">Title</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">Priority</th>
-                                <th scope="col">Category</th>
-                                <th scope="col">Deadline</th>
+                                <th scope="col">
+                                    <a href="?{% if current_search %}q={{ current_search }}&{% endif %}{% if current_status %}status={{ current_status }}&{% endif %}{% if current_priority %}priority={{ current_priority }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}sort_by={% if current_sort == 'title' %}-title{% else %}title{% endif %}" 
+                                       class="text-decoration-none text-white">
+                                        Title
+                                        {% if current_sort == 'title' %}<i class="fas fa-sort-up ms-1"></i>
+                                        {% elif current_sort == '-title' %}<i class="fas fa-sort-down ms-1"></i>
+                                        {% else %}<i class="fas fa-sort ms-1"></i>{% endif %}
+                                    </a>
+                                </th>
+                                <th scope="col">
+                                    <a href="?{% if current_search %}q={{ current_search }}&{% endif %}{% if current_status %}status={{ current_status }}&{% endif %}{% if current_priority %}priority={{ current_priority }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}sort_by={% if current_sort == 'status' %}-status{% else %}status{% endif %}" 
+                                       class="text-decoration-none text-white">
+                                        Status
+                                        {% if current_sort == 'status' %}<i class="fas fa-sort-up ms-1"></i>
+                                        {% elif current_sort == '-status' %}<i class="fas fa-sort-down ms-1"></i>
+                                        {% else %}<i class="fas fa-sort ms-1"></i>{% endif %}
+                                    </a>
+                                </th>
+                                <th scope="col">
+                                    <a href="?{% if current_search %}q={{ current_search }}&{% endif %}{% if current_status %}status={{ current_status }}&{% endif %}{% if current_priority %}priority={{ current_priority }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}sort_by={% if current_sort == 'priority__name' %}-priority__name{% else %}priority__name{% endif %}" 
+                                       class="text-decoration-none text-white">
+                                        Priority
+                                        {% if current_sort == 'priority__name' %}<i class="fas fa-sort-up ms-1"></i>
+                                        {% elif current_sort == '-priority__name' %}<i class="fas fa-sort-down ms-1"></i>
+                                        {% else %}<i class="fas fa-sort ms-1"></i>{% endif %}
+                                    </a>
+                                </th>
+                                <th scope="col">
+                                    <a href="?{% if current_search %}q={{ current_search }}&{% endif %}{% if current_status %}status={{ current_status }}&{% endif %}{% if current_priority %}priority={{ current_priority }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}sort_by={% if current_sort == 'category__name' %}-category__name{% else %}category__name{% endif %}" 
+                                       class="text-decoration-none text-white">
+                                        Category
+                                        {% if current_sort == 'category__name' %}<i class="fas fa-sort-up ms-1"></i>
+                                        {% elif current_sort == '-category__name' %}<i class="fas fa-sort-down ms-1"></i>
+                                        {% else %}<i class="fas fa-sort ms-1"></i>{% endif %}
+                                    </a>
+                                </th>
+                                <th scope="col">
+                                    <a href="?{% if current_search %}q={{ current_search }}&{% endif %}{% if current_status %}status={{ current_status }}&{% endif %}{% if current_priority %}priority={{ current_priority }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}sort_by={% if current_sort == 'deadline' %}-deadline{% else %}deadline{% endif %}" 
+                                       class="text-decoration-none text-white">
+                                        Deadline
+                                        {% if current_sort == 'deadline' %}<i class="fas fa-sort-up ms-1"></i>
+                                        {% elif current_sort == '-deadline' %}<i class="fas fa-sort-down ms-1"></i>
+                                        {% else %}<i class="fas fa-sort ms-1"></i>{% endif %}
+                                    </a>
+                                </th>
                                 <th scope="col">Actions</th>
                             </tr>
                         </thead>
@@ -44,12 +217,41 @@
                                         {{ task.status }}
                                     </span>
                                 </td>
-                                <td>{{ task.priority }}</td>
-                                <td>{{ task.category }}</td>
-                                <td>{{ task.deadline|date:"M d, Y H:i"|default:"No deadline" }}</td>
                                 <td>
-                                    <a href="{% url 'task-update' task.id %}" class="btn btn-primary btn-sm">Edit</a>
-                                    <a href="{% url 'task-delete' task.id %}" class="btn btn-danger btn-sm">Delete</a>
+                                    <span class="badge 
+                                        {% if task.priority.name == 'Critical' %}bg-danger
+                                        {% elif task.priority.name == 'High' %}bg-warning
+                                        {% elif task.priority.name == 'Medium' %}bg-info
+                                        {% elif task.priority.name == 'Low' %}bg-primary
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ task.priority }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-dark">
+                                        {{ task.category }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if task.deadline %}
+                                        {% if task.is_overdue %}
+                                            <span class="text-danger">{{ task.deadline|date:"M d, Y H:i" }}</span>
+                                        {% else %}
+                                            {{ task.deadline|date:"M d, Y H:i" }}
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">No deadline</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'task-update' task.id %}" class="btn btn-edit btn-edit-icon btn-edit-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <a href="{% url 'task-delete' task.id %}" class="btn btn-delete btn-delete-icon btn-delete-sm">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                             {% empty %}
@@ -60,7 +262,7 @@
                         </tbody>
                     </table>
                 </div>
-                
+
                 {% include 'includes/pagination.html' %}
             </div>
         </div>

@@ -11,7 +11,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h2 class="mb-0">Dashboard</h2>
-                    <p class="text-muted mb-0">Welcome to your task management dashboard</p>
+                    <p class="text-muted mb-0">Welcome ✧｡٩(ˊᗜˋ )و✧</p>
                 </div>
                 <div class="btn-group">
                     
@@ -29,7 +29,7 @@
                     <div class="row">
                         <div class="col-8">
                             <div class="numbers">
-                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Tasks</p>
+                                <p class="text-sm mb-0 text-uppercase font-weight-bold">⚙ Total Tasks</p>
                                 <h5 class="font-weight-bolder">{{ total_tasks }}</h5>
                             </div>
                         </div>
@@ -48,7 +48,7 @@
                     <div class="row">
                         <div class="col-8">
                             <div class="numbers">
-                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Completed</p>
+                                <p class="text-sm mb-0 text-uppercase font-weight-bold">✔ Completed</p>
                                 <h5 class="font-weight-bolder">{{ completed_tasks }}</h5>
                             </div>
                         </div>
@@ -67,7 +67,7 @@
                     <div class="row">
                         <div class="col-8">
                             <div class="numbers">
-                                <p class="text-sm mb-0 text-uppercase font-weight-bold">In Progress</p>
+                                <p class="text-sm mb-0 text-uppercase font-weight-bold">⏳ In Progress</p>
                                 <h5 class="font-weight-bolder">{{ in_progress_tasks }}</h5>
                             </div>
                         </div>
@@ -86,7 +86,7 @@
                     <div class="row">
                         <div class="col-8">
                             <div class="numbers">
-                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Pending</p>
+                                <p class="text-sm mb-0 text-uppercase font-weight-bold">📌 Pending</p>
                                 <h5 class="font-weight-bolder">{{ pending_tasks }}</h5>
                             </div>
                         </div>
@@ -168,41 +168,68 @@
         </div>
 
         <!-- Task Overview Section -->
-        <div class="col-lg-4">
+<div class="col-lg-4">
             <div class="card mb-4">
                 <div class="card-header pb-0">
                     <h6>Task Overview</h6>
                     <p class="text-sm mb-0">Here you have details about task distribution</p>
                 </div>
-                <div class="card-body p-3">
-                    <div class="chart">
-                        <!-- Simple progress bars for task status overview -->
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-sm">Completed</span>
-                                <span class="text-sm font-weight-bold">{{ completed_percentage }}%</span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: {{ completed_percentage }}%"></div>
-                            </div>
+                </div>
+        <div class="card-body p-3">
+            <div class="chart">
+                <!-- Completed Tasks -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <div>
+                            <span class="text-sm font-weight-bold text-success">Completed</span>
+                            <small class="text-muted d-block">{{ completed_tasks }} tasks</small>
                         </div>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-sm">In Progress</span>
-                                <span class="text-sm font-weight-bold">{{ in_progress_percentage }}%</span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ in_progress_percentage }}%"></div>
-                            </div>
+                        <span class="text-sm font-weight-bold text-success">{{ completed_percentage }}%</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ completed_percentage }}%"
+                             aria-valuenow="{{ completed_percentage }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
                         </div>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-sm">Pending</span>
-                                <span class="text-sm font-weight-bold">{{ pending_percentage }}%</span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar bg-secondary" role="progressbar" style="width: {{ pending_percentage }}%"></div>
-                            </div>
+                    </div>
+                </div>
+
+                <!-- In Progress Tasks -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <div>
+                            <span class="text-sm font-weight-bold text-warning">In Progress</span>
+                            <small class="text-muted d-block">{{ in_progress_tasks }} tasks</small>
+                        </div>
+                        <span class="text-sm font-weight-bold text-warning">{{ in_progress_percentage }}%</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-warning" role="progressbar" 
+                             style="width: {{ in_progress_percentage }}%"
+                             aria-valuenow="{{ in_progress_percentage }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Tasks -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <div>
+                            <span class="text-sm font-weight-bold text-info">Pending</span>
+                            <small class="text-muted d-block">{{ pending_tasks }} tasks</small>
+                        </div>
+                        <span class="text-sm font-weight-bold text-info">{{ pending_percentage }}%</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-info" role="progressbar" 
+                             style="width:{{ pending_percentage }}%"
+                             aria-valuenow="{{ pending_percentage }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
                         </div>
                     </div>
                 </div>

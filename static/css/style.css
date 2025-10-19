@@ -741,3 +741,84 @@ body {
     text-shadow: 0 0 10px rgba(199, 10, 155, 0.8);
     transition: all 0.2s ease;
 }
+/* Animated Progress Bars */
+.progress {
+    background: #2d3748 !important;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.progress-bar {
+    transition: width 1.5s ease-in-out;
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+/* Shimmer Animation Effect */
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 2s infinite;
+    border-radius: 10px;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Custom Gradient Colors for Progress Bars */
+.progress-bar.bg-success {
+    background: linear-gradient(135deg, #28a745, #20c997, #28a745) !important;
+    background-size: 200% 100% !important;
+    animation: gradient-shift 3s ease infinite !important;
+}
+
+.progress-bar.bg-warning {
+    background: linear-gradient(135deg, #ffc107, #fd7e14, #ffc107) !important;
+    background-size: 200% 100% !important;
+    animation: gradient-shift 3s ease infinite !important;
+}
+
+.progress-bar.bg-info {
+    background: linear-gradient(135deg, #17a2b8, #6f42c1, #17a2b8) !important;
+    background-size: 200% 100% !important;
+    animation: gradient-shift 3s ease infinite !important;
+}
+
+/* Additional gradient animation */
+@keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Hover Effects */
+.progress-bar:hover {
+    transform: scale(1.02);
+    transition: transform 0.3s ease;
+}
+
+/* Pulse animation for empty states */
+.progress-bar:empty::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: currentColor;
+    opacity: 0.3;
+    border-radius: 10px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.5; }
+}

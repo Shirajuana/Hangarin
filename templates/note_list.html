@@ -11,12 +11,59 @@
                     <a href="{% url 'note-add' %}" class="btn btn-success"><i class="fa fa-plus me-2"></i>Add Note</a>
                 </div>
                 
+                <!-- Search and Filter Section -->
                 <div class="row mb-4">
-                    <div class="col-md-6">
-                        <form class="d-flex">
-                            <input class="form-control bg-dark border-0 me-2" type="search" placeholder="Search notes..." aria-label="Search">
-                            <button class="btn btn-primary" type="submit">Search</button>
+                    <div class="col-md-4">
+                        <!-- Search Form -->
+                        <form method="get" class="d-flex">
+                            <input class="form-control bg-dark border-0 me-2" 
+                                   type="search" 
+                                   name="q" 
+                                   placeholder="Search notes..." 
+                                   aria-label="Search"
+                                   value="{{ current_search }}">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
                         </form>
+                    </div>
+                    <div class="col-md-4">
+                        <!-- Task Filter -->
+                        <form method="get" id="taskForm">
+                            <select class="form-select bg-dark border-0" name="task" onchange="this.form.submit()">
+                                <option value="">All Tasks</option>
+                                {% for task in tasks %}
+                                <option value="{{ task.id }}" 
+                                        {% if current_task == task.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ task.title }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <!-- Preserve other GET parameters -->
+                            <input type="hidden" name="q" value="{{ current_search }}">
+                            <input type="hidden" name="sort_by" value="{{ current_sort }}">
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Statistics and Clear Filters -->
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-muted">
+                                    Showing {{ notes.paginator.count }} note{{ notes.paginator.count|pluralize }}
+                                    {% if current_search or current_task %}(filtered){% endif %}
+                                </span>
+                            </div>
+                            {% if current_search or current_task or current_sort != '-created_at' %}
+                            <div>
+                                <a href="{% url 'note-list' %}" class="btn btn-sm btn-outline-light">
+                                    <i class="fas fa-times me-1"></i>Clear Filters
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
 
@@ -24,9 +71,34 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th scope="col">Task</th>
+                                <th scope="col">
+                                    <a href="?{% if current_search %}q={{ current_search }}&{% endif %}{% if current_task %}task={{ current_task }}&{% endif %}sort_by={% if current_sort == 'task__title' %}-task__title{% else %}task__title{% endif %}" 
+                                       class="text-decoration-none text-white">
+                                        Task
+                                        {% if current_sort == 'task__title' %}<i class="fas fa-sort-up ms-1"></i>
+                                        {% elif current_sort == '-task__title' %}<i class="fas fa-sort-down ms-1"></i>
+                                        {% else %}<i class="fas fa-sort ms-1"></i>{% endif %}
+                                    </a>
+                                </th>
                                 <th scope="col">Content Preview</th>
-                                <th scope="col">Created At</th>
+                                <th scope="col">
+                                    <a href="?{% if current_search %}q={{ current_search }}&{% endif %}{% if current_task %}task={{ current_task }}&{% endif %}sort_by={% if current_sort == 'created_at' %}-created_at{% else %}created_at{% endif %}" 
+                                       class="text-decoration-none text-white">
+                                        Created At
+                                        {% if current_sort == 'created_at' %}<i class="fas fa-sort-up ms-1"></i>
+                                        {% elif current_sort == '-created_at' %}<i class="fas fa-sort-down ms-1"></i>
+                                        {% else %}<i class="fas fa-sort ms-1"></i>{% endif %}
+                                    </a>
+                                </th>
+                                <th scope="col">
+                                    <a href="?{% if current_search %}q={{ current_search }}&{% endif %}{% if current_task %}task={{ current_task }}&{% endif %}sort_by={% if current_sort == 'updated_at' %}-updated_at{% else %}updated_at{% endif %}" 
+                                       class="text-decoration-none text-white">
+                                        Updated At
+                                        {% if current_sort == 'updated_at' %}<i class="fas fa-sort-up ms-1"></i>
+                                        {% elif current_sort == '-updated_at' %}<i class="fas fa-sort-down ms-1"></i>
+                                        {% else %}<i class="fas fa-sort ms-1"></i>{% endif %}
+                                    </a>
+                                </th>
                                 <th scope="col">Actions</th>
                             </tr>
                         </thead>
@@ -36,20 +108,27 @@
                                 <td>{{ note.task.title }}</td>
                                 <td>{{ note.content|truncatewords:10 }}</td>
                                 <td>{{ note.created_at|date:"M d, Y" }}</td>
+                                <td>{{ note.updated_at|date:"M d, Y" }}</td>
                                 <td>
-                                    <a href="{% url 'note-update' note.id %}" class="btn btn-primary btn-sm">Edit</a>
-                                    <a href="{% url 'note-delete' note.id %}" class="btn btn-danger btn-sm">Delete</a>
+                                    <div class="btn-group">
+                                        <a href="{% url 'note-update' note.id %}" class="btn btn-edit btn-edit-icon btn-edit-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <a href="{% url 'note-delete' note.id %}" class="btn btn-delete btn-delete-icon btn-delete-sm">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4" class="text-center">No notes found.</td>
+                                <td colspan="5" class="text-center">No notes found.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-                
+
                 {% include 'includes/pagination.html' %}
             </div>
         </div>

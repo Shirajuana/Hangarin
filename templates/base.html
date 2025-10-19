@@ -1,4 +1,6 @@
 {% load static %}
+{% load pwa %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -41,6 +43,8 @@
             </div>
         </div>
         <!-- Spinner End -->
+
+        {% progressive_web_app_meta %}
 
         <!-- Sidebar Start -->
         <div class="sidebar pe-4 pb-3">
@@ -100,14 +104,12 @@
                 <a href="#" class="sidebar-toggler flex-shrink-0">
                     <i class="fa fa-bars"></i>
                 </a>
-                <form class="d-none d-md-flex ms-4">
-                    <input class="form-control bg-dark border-0" type="search" placeholder="Search tasks...">
-                </form>
+
                 <div class="navbar-nav align-items-center ms-auto">
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                             <img class="rounded-circle me-lg-2" src="{% static 'img/p.jpg' %}" alt="" style="width: 40px; height: 40px;">
-                            <span class="d-none d-lg-inline-flex">Mr.Crawling</span>
+                            <span class="d-none d-lg-inline-flex">Account</span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end bg-secondary border-0 rounded-0 rounded-bottom m-0">
                             <a href="#" class="dropdown-item">My Profile</a>
@@ -141,7 +143,7 @@
         <!-- Content End -->
 
         <!-- Back to Top -->
-        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>-->
     </div>
 
     <!-- JavaScript Libraries -->

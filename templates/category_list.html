@@ -5,18 +5,62 @@
 <div class="container-fluid pt-4 px-4">
     <div class="row g-4">
         <div class="col-12">
-            <div class="bg-secondary rounded h-100 p-4">
+            <div class="rounded h-100 p-4">
                 <div class="d-flex align-items-center justify-content-between mb-4">
                     <h4 class="mb-0">List of Categories</h4>
                     <a href="{% url 'category-add' %}" class="btn btn-success"><i class="fa fa-plus me-2"></i>Add Category</a>
                 </div>
                 
+                <!-- Search and Filter Section -->
                 <div class="row mb-4">
                     <div class="col-md-6">
-                        <form class="d-flex">
-                            <input class="form-control bg-dark border-0 me-2" type="search" placeholder="Search categories..." aria-label="Search">
-                            <button class="btn btn-primary" type="submit">Search</button>
+                        <!-- Search Form -->
+                        <form method="get" class="d-flex">
+                            <input class="form-control border-0 me-2" 
+                                   type="search" 
+                                   name="q" 
+                                   placeholder="Search categories..." 
+                                   aria-label="Search"
+                                   value="{{ current_search }}">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
                         </form>
+                    </div>
+                    <div class="col-md-4">
+                        <!-- Sort Options -->
+                        <form method="get" id="sortForm">
+                            <select class="form-select border-0" name="sort_by" onchange="this.form.submit()">
+                                {% for value, label in sort_options.items %}
+                                <option value="{{ value }}" 
+                                        {% if current_sort == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <!-- Preserve search parameter -->
+                            <input type="hidden" name="q" value="{{ current_search }}">
+                        </form>
+                    </div>
+                    <div class="col-md-2">
+                        <!-- Clear Filters -->
+                        {% if current_search or current_sort != 'name' %}
+                        <a href="{% url 'category-list' %}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-times me-1"></i>Clear
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">
+                                Showing {{ categories.paginator.count }} categor{{ categories.paginator.count|pluralize:"y,ies" }}
+                                {% if current_search %}(filtered){% endif %}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -24,32 +68,52 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th scope="col">Name</th>
+                                <th scope="col">
+                                    <a href="?{% if current_search %}q={{ current_search }}&{% endif %}sort_by={% if current_sort == 'name' %}-name{% else %}name{% endif %}" 
+                                       class="text-decoration-none">
+                                        Name
+                                        {% if current_sort == 'name' %}<i class="fas fa-sort-up ms-1"></i>
+                                        {% elif current_sort == '-name' %}<i class="fas fa-sort-down ms-1"></i>
+                                        {% else %}<i class="fas fa-sort ms-1"></i>{% endif %}
+                                    </a>
+                                </th>
+                                <th scope="col">Task Count</th>
                                 <th scope="col">Created At</th>
                                 <th scope="col">Updated At</th>
                                 <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for category in categories %}
+                            {% for item in categories_with_counts %}
+                            {% with category=item.category %}
                             <tr>
                                 <td>{{ category.name }}</td>
+                                <td>
+                                    <span class="badge bg-primary">{{ item.task_count }}</span>
+                                </td>
                                 <td>{{ category.created_at|date:"M d, Y" }}</td>
                                 <td>{{ category.updated_at|date:"M d, Y" }}</td>
                                 <td>
-                                    <a href="{% url 'category-update' category.id %}" class="btn btn-primary btn-sm">Edit</a>
-                                    <a href="{% url 'category-delete' category.id %}" class="btn btn-danger btn-sm">Delete</a>
+                                    <div class="btn-group">
+                                        <a href="{% url 'category-update' category.id %}" class="btn btn-edit btn-edit-icon btn-edit-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <a href="{% url 'category-delete' category.id %}" class="btn btn-delete btn-delete-icon btn-delete-sm">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
+                            {% endwith %}
                             {% empty %}
                             <tr>
-                                <td colspan="4" class="text-center">No categories found.</td>
+                                <td colspan="5" class="text-center">No categories found.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-                
+
                 {% include 'includes/pagination.html' %}
             </div>
         </div>
