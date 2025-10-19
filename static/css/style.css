@@ -623,8 +623,6 @@
 
 /* Full dashboard background */
 body {
-    background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), 
-                url('p.jpg') no-repeat center center fixed;
     background-size: cover;
     color: #b20404 !important; /* White text */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

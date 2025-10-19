@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'tasks',
     'widget_tweaks', 
     'pwa',
-
     'django.contrib.sites',
     'allauth',
     'allauth.account',
@@ -50,12 +49,13 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.github',
 ]
 if "pythonanywhere" in socket.gethostname():
-    SITE_ID = 2 # production site (psusphere.pythonanywhere.com)
+    SITE_ID = 3
 else:
-    SITE_ID = 1 # local site (127.0.0.1:8000)
+    SITE_ID = 2
+
 AUTHENTICATION_BACKENDS = [
-'django.contrib.auth.backends.ModelBackend',
-'allauth.account.auth_backends.AuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 MIDDLEWARE = [
@@ -150,13 +150,14 @@ ACCOUNT_LOGOUT_REDIRECT_URL = '/' # where to redirect after logout
 ACCOUNT_LOGOUT_ON_GET = True # logout immediately on GET
 ACCOUNT_LOGIN_METHODS = {"username", "email"} # allow login with username OR email
 ACCOUNT_SIGNUP_FIELDS = [
-"username*",
-"email*",
-"password1*",
-"password2*",
+    "username*",
+    "email*",
+    "password1*",
+    "password2*",
 ]
-PWA_APP_NAME = 'ProjectSite'
-PWA_APP_DESCRIPTION = "A Progressive Web App version of ProjectSite"
+
+PWA_APP_NAME = 'Hangarin'
+PWA_APP_DESCRIPTION = "A Progressive Web App version of Hangarin"
 PWA_APP_THEME_COLOR = '#0A0A0A'
 PWA_APP_BACKGROUND_COLOR = '#FFFFFF'
 PWA_APP_DISPLAY = 'standalone'
@@ -165,24 +166,24 @@ PWA_APP_ORIENTATION = 'portrait'
 PWA_APP_START_URL = '/'
 PWA_APP_STATUS_BAR_COLOR = 'default'
 PWA_APP_ICONS = [
-{
-'src': '/static/img/icon-192.png',
-'sizes': '192x192'
-},
-{
-'src': '/static/img/icon-512.png',
-'sizes': '512x512'
-}
+    {
+        'src': 'static/img/theme/vue.jpg',
+        'sizes': '192x192'
+    },
+    {
+        'src': 'static/img/theme/vue.jpg',
+        'sizes': '512x512'
+    }
 ]
 PWA_APP_ICONS_APPLE = [
-{
-'src': '/static/img/icon-192.png',
-'sizes': '192x192'
-},
-{
-'src': '/static/img/icon-512.png',
-'sizes': '512x512'
-}
+    {
+        'src': 'static/img/theme/vue.jpg',
+        'sizes': '192x192'
+    },
+    {
+        'src': 'static/img/theme/vue.jpg',
+        'sizes': '512x512'
+    }
 ]
 PWA_APP_DIR = 'ltr'
 PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static/js', 'serviceworker.js')
