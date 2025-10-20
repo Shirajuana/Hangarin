@@ -6,7 +6,11 @@ class TaskForm(forms.ModelForm):
         model = Task
         fields = "__all__"
         widgets = {
-            'deadline': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'deadline': forms.DateTimeInput(attrs={
+                'type': 'datetime-local',
+                'class': 'form-control bg-dark text-white border-secondary',
+                'style': 'color-scheme: dark;'
+            }),
             'description': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Enter task description...'}),
         }
 

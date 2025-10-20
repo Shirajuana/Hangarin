@@ -11,37 +11,6 @@ from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 
-def home(request):
-    # Get all tasks
-    total_tasks = Task.objects.count()
-    
-    # Calculate task counts by status (adjust status names based on your model)
-    completed_tasks = Task.objects.filter(status='completed').count()
-    in_progress_tasks = Task.objects.filter(status='in_progress').count()
-    pending_tasks = Task.objects.filter(status='pending').count()
-    
-    # Calculate percentages (avoid division by zero)
-    if total_tasks > 0:
-        completed_percentage = round((completed_tasks / total_tasks) * 100)
-        in_progress_percentage = round((in_progress_tasks / total_tasks) * 100)
-        pending_percentage = round((pending_tasks / total_tasks) * 100)
-    else:
-        completed_percentage = 0
-        in_progress_percentage = 0
-        pending_percentage = 0
-    
-    context = {
-        'completed_percentage': completed_percentage,
-        'in_progress_percentage': in_progress_percentage,
-        'pending_percentage': pending_percentage,
-        'completed_tasks': completed_tasks,
-        'in_progress_tasks': in_progress_tasks,
-        'pending_tasks': pending_tasks,
-        'total_tasks': total_tasks,
-    }
-    
-    return render(request, 'your_template.html', context)
-
 # tasks/views.py
 from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -122,7 +91,7 @@ class TaskListView(ListView):
         category_filter = self.request.GET.get('category', '')
         priority_filter = self.request.GET.get('priority', '')
         status_filter = self.request.GET.get('status', '')
-        sort_by = self.request.GET.get('sort', '-created_at')
+        sort_by = self.request.GET.get('sort_by', '-created_at')  # Fixed parameter name
         
         # Apply search filter
         if search_query:
@@ -133,18 +102,45 @@ class TaskListView(ListView):
         
         # Apply category filter - show ONLY tasks from selected category
         if category_filter:
-            queryset = queryset.filter(category_id=category_filter)
+            # Try to find category by name first, then by ID
+            try:
+                category = Category.objects.get(name=category_filter)
+                queryset = queryset.filter(category=category)
+            except (Category.DoesNotExist, ValueError):
+                # If category name not found or invalid, try filtering by ID
+                try:
+                    queryset = queryset.filter(category_id=category_filter)
+                except (ValueError, ValidationError):
+                    # If it's not a valid ID, return empty queryset
+                    queryset = queryset.none()
         
         # Apply priority filter - show ONLY tasks with selected priority
         if priority_filter:
-            queryset = queryset.filter(priority_id=priority_filter)
+            # Try to find priority by name first
+            try:
+                priority = Priority.objects.get(name=priority_filter)
+                queryset = queryset.filter(priority=priority)
+            except (Priority.DoesNotExist, ValueError):
+                # If priority name not found, try filtering by ID
+                try:
+                    queryset = queryset.filter(priority_id=priority_filter)
+                except (ValueError, ValidationError):
+                    # If it's not a valid ID, return empty queryset
+                    queryset = queryset.none()
         
         # Apply status filter - show ONLY tasks with selected status
         if status_filter:
             queryset = queryset.filter(status=status_filter)
         
         # Apply sorting
-        valid_sorts = ['title', '-title', 'deadline', '-deadline', 'created_at', '-created_at']
+        valid_sorts = [
+            'title', '-title', 
+            'status', '-status', 
+            'priority__name', '-priority__name',
+            'category__name', '-category__name',
+            'deadline', '-deadline', 
+            'created_at', '-created_at'
+        ]
         if sort_by in valid_sorts:
             queryset = queryset.order_by(sort_by)
         else:
@@ -160,7 +156,7 @@ class TaskListView(ListView):
         context['current_category'] = self.request.GET.get('category', '')
         context['current_priority'] = self.request.GET.get('priority', '')
         context['current_status'] = self.request.GET.get('status', '')
-        context['current_sort'] = self.request.GET.get('sort', '-created_at')
+        context['current_sort'] = self.request.GET.get('sort_by', '-created_at')
         
         # Add filter options to context
         context['categories'] = Category.objects.all()
@@ -172,6 +168,10 @@ class TaskListView(ListView):
             ('In Progress', 'In Progress'),
             ('Completed', 'Completed')
         ]
+        
+        # Add statistics for template
+        context['total_tasks'] = Task.objects.count()
+        context['total_filtered_tasks'] = self.get_queryset().count()
         
         return context
 # Apply similar pattern to other ListViews
@@ -456,91 +456,46 @@ class SubTaskDeleteView(DeleteView):
     success_url = reverse_lazy('subtask-list')
 
 # Note Views with enhanced context
-class NoteListView(LoginRequiredMixin, ListView):
+class NoteListView(ListView):
     model = Note
-    template_name = 'note_list.html'
     context_object_name = 'notes'
+    template_name = 'note_list.html'
     paginate_by = 10
-    ordering = ["note__note_name","name"]
 
     def get_queryset(self):
-        """Customize records returned with search"""
-        qs = super().get_queryset()
-        query = self.request.GET.get('q')
+        queryset = super().get_queryset()
         
-        if query:
-            qs = qs.filter(
-                Q(content__icontains=query) |
-                Q(task__title__icontains=query)
+        # Get filter parameters
+        search_query = self.request.GET.get('q', '')
+        task_filter = self.request.GET.get('task', '')
+        
+        # Apply search filter
+        if search_query:
+            queryset = queryset.filter(
+                Q(content__icontains=search_query) |
+                Q(task__title__icontains=search_query)
             )
         
-        # Filter by task if provided
-        task_filter = self.request.GET.get('task')
+        # Apply task filter
         if task_filter:
-            qs = qs.filter(task_id=task_filter)
+            queryset = queryset.filter(task_id=task_filter)
             
-        return qs
-
-    def get_ordering(self):
-        """Dynamic sorting control for notes"""
-        allowed_sort_fields = {
-            'task__title': 'Task A-Z',
-            '-task__title': 'Task Z-A',
-            'created_at': 'Created (Oldest)',
-            '-created_at': 'Created (Newest)',
-            'updated_at': 'Updated (Oldest)',
-            '-updated_at': 'Updated (Newest)',
-        }
-        
-        sort_by = self.request.GET.get('sort_by', '-created_at')
-        if sort_by in allowed_sort_fields:
-            return sort_by
-        return '-created_at'
+        return queryset
 
     def get_context_data(self, **kwargs):
-        """Add extra template variables"""
         context = super().get_context_data(**kwargs)
         
-        context['current_sort'] = self.request.GET.get('sort_by', '-created_at')
+        # Get current filter values
         context['current_search'] = self.request.GET.get('q', '')
         context['current_task'] = self.request.GET.get('task', '')
-        context['tasks'] = Task.objects.all()
         
-        # Sorting options
-        context['sort_options'] = {
-            '-created_at': 'Newest First',
-            'created_at': 'Oldest First',
-            'task__title': 'Task A-Z',
-            '-task__title': 'Task Z-A',
-            '-updated_at': 'Recently Updated',
-            'updated_at': 'Least Recently Updated',
-        }
+        # Add all tasks for the filter dropdown
+        context['tasks_list'] = Task.objects.all().order_by('title')
+        
+        # Statistics
+        context['note_count'] = Note.objects.count()
         
         return context
-
-    def get_ordering(self):
-        """Dynamic sorting control"""
-        allowed_sort_fields = [
-            'task__title', '-task__title',
-            'created_at', '-created_at',
-            'updated_at', '-updated_at'
-        ]
-        
-        sort_by = self.request.GET.get('sort_by', '-created_at')
-        if sort_by in allowed_sort_fields:
-            return sort_by
-        return '-created_at'
-
-    def get_context_data(self, **kwargs):
-        """Add extra template variables"""
-        context = super().get_context_data(**kwargs)
-        
-        context['current_sort'] = self.request.GET.get('sort_by', '-created_at')
-        context['current_search'] = self.request.GET.get('q', '')
-        context['tasks'] = Task.objects.all()  # For task filter dropdown
-        
-        return context
-
 
 class NoteCreateView(CreateView):
     model = Note

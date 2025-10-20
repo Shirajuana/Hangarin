@@ -29,19 +29,18 @@
                     </div>
                     <div class="col-md-4">
                         <!-- Task Filter -->
-                        <form method="get" id="taskForm">
+                        <form method="get" id="taskFilterForm">
                             <select class="form-select bg-dark border-0" name="task" onchange="this.form.submit()">
                                 <option value="">All Tasks</option>
-                                {% for task in tasks %}
+                                {% for task in tasks_list %}
                                 <option value="{{ task.id }}" 
                                         {% if current_task == task.id|stringformat:"s" %}selected{% endif %}>
                                     {{ task.title }}
                                 </option>
                                 {% endfor %}
                             </select>
-                            <!-- Preserve other GET parameters -->
+                            <!-- Preserve search parameter -->
                             <input type="hidden" name="q" value="{{ current_search }}">
-                            <input type="hidden" name="sort_by" value="{{ current_sort }}">
                         </form>
                     </div>
                 </div>
