@@ -15,6 +15,7 @@ from django.utils import timezone
 from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin
 
+
 class HomePageView(LoginRequiredMixin, TemplateView):
     template_name = "home.html"
     
@@ -175,7 +176,7 @@ class TaskListView(ListView):
         
         return context
 # Apply similar pattern to other ListViews
-class SubTaskListView(LoginRequiredMixin, ListView):
+class SubTaskListView( ListView):
     model = SubTask
     template_name = 'subtask_list.html'
     context_object_name = 'subtasks'
@@ -273,7 +274,7 @@ class TaskDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('task-list')
 
 # Category Views with enhanced context
-class CategoryListView(LoginRequiredMixin, ListView):
+class CategoryListView( ListView):
     model = Category
     template_name = 'category_list.html'
     context_object_name = 'categories'
@@ -344,7 +345,7 @@ class CategoryDeleteView(DeleteView):
     success_url = reverse_lazy('category-list')
 
 # Priority Views with enhanced context
-class PriorityListView(LoginRequiredMixin, ListView):
+class PriorityListView( ListView):
     model = Priority
     template_name = 'priority_list.html'
     context_object_name = 'priorities'

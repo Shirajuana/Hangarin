@@ -23,12 +23,16 @@ from tasks.views import (
     PriorityListView, PriorityCreateView, PriorityUpdateView, PriorityDeleteView,
     SubTaskListView, SubTaskCreateView, SubTaskUpdateView, SubTaskDeleteView,
     NoteListView, NoteCreateView, NoteUpdateView, NoteDeleteView
+
 )
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    
     path('', include('pwa.urls')),
-    path("accounts/", include("allauth.urls")), # allauth routes
+    path("accounts/", include("allauth.urls")), # allauth
+    
+    
     path('', HomePageView.as_view(), name='home'),
     
     # Task URLs
